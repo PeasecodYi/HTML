@@ -1,20 +1,4 @@
-// import { createApp } from "vue";
-// import App from "./App.vue";
-// import router from "./router";
-// import installElementPlus from "./plugins/element";
-//
-// const app = createApp(App);
-// installElementPlus(app);
-// app.use(router).mount("#app");
-// import "@/assets/css/global.css";
-// import { createApp } from "vue";
-// import App from "./App.vue";
-// import router from "./router";
-// import installElementPlus from "./plugins/element";
-// const app = createApp(App);
-// installElementPlus(app);
-// app.use(router).mount("#app");
-//猫咪管理
+﻿//猫咪管理
 import "@/assets/css/global.css";
 
 import { createApp } from "vue";
@@ -35,19 +19,3 @@ app.provide("global", {
 });
 
 app.use(router).mount("#app");
-// 图标
-// import "@/assets/css/global.css";
-// import { createApp } from "vue";
-// import App from "./App.vue";
-// import router from "./router";
-// import installElementPlus from "./plugins/element";
-// import ElementPlus from "element-plus";
-// import "element-plus/dist/index.css";
-// import locale from "element-plus/lib/locale/lang/zh-cn";
-// import * as ElementPlusIconsVue from "@element-plus/icons-vue";
-// const app = createApp(App);
-// installElementPlus(app);
-// for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-//   app.component(key, component);
-// }
-// app.use(router).use(ElementPlus, { locale }).mount("#app");
