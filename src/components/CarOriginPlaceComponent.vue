@@ -18,7 +18,7 @@
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="车系:">
+        <el-form-item label="名称:">
           <el-input
             v-model="originPlace.caption"
             minlength="1"
@@ -59,7 +59,7 @@
         header-align="center"
         align="center"
       />
-      <el-table-column prop="caption" label="车系" header-align="center" />
+      <el-table-column prop="caption" label="产地" header-align="center" />
       <el-table-column label="操作" header-align="center" align="center">
         <template #default="scope">
           <el-button type="primary" @click="doModify(scope.row)">

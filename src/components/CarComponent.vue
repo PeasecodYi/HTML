@@ -1,7 +1,7 @@
 <template>
   <h1>
     品牌设计
-    <el-button size="small" type="success" @click="showNewCatDialog()">
+    <el-button size="small" type="success" @click="showNewCarDialog()">
       <el-icon>
         <Plus />
       </el-icon>
@@ -10,7 +10,7 @@
   </h1>
 
   <el-dialog
-    v-model="catDialogShow"
+    v-model="carDialogShow"
     title="信息卡"
     width="1150px"
     style="height: 380px"
@@ -113,7 +113,7 @@
         </el-col>
       </el-row>
       <!--第三行-->
-      <el-row :gutter="12">
+      <el-row :gutter="10">
         <el-col :span="4">
           <el-form-item label="变速箱:" prop="transCode">
             <el-select v-model="car.transCode" placeholder="请选择">
@@ -175,23 +175,19 @@
           </el-form-item>
         </el-col>
       </el-row>
-
       <el-row :gutter="20">
-        <el-form-item label="选配件:" prop="checkList">
-          <el-checkbox-group v-model="car.checkList">
-            <el-checkbox label="001:全景天窗" />
-            <el-checkbox label="002:电动天窗" />
-            <el-checkbox label="003:电动调节座椅" />
-            <el-checkbox label="004:车身ESP" />
-            <el-checkbox label="005:氙气大灯" />
-            <el-checkbox label="006:GPS导航" />
-            <el-checkbox label="007:定速巡航" />
-            <el-checkbox label="008:真皮座椅" />
-            <el-checkbox label="009:倒车雷达" />
-            <el-checkbox label="010:全自动空调" />
-            <el-checkbox label="011:多功能方向盘" />
-          </el-checkbox-group>
-        </el-form-item>
+        <el-col>
+          <el-form-item label="选配件:" prop="features">
+            <el-checkbox-group v-model="car.features">
+              <el-checkbox
+                v-for="feature in features"
+                :key="feature.code"
+                :label="feature.caption"
+                >{{ feature.code }}:{{ feature.caption }}
+              </el-checkbox>
+            </el-checkbox-group>
+          </el-form-item>
+        </el-col>
       </el-row>
       <el-row> </el-row>
       <el-row :gutter="10" justify="end">
@@ -220,7 +216,7 @@
   <!-- 数据表 -->
 
   <el-row>
-    <el-table :data="cats">
+    <el-table :data="cars">
       <el-table-column prop="id" label="ID" width="150" header-align="center" />
 
       <el-table-column
@@ -242,10 +238,11 @@
         label="颜色"
         header-align="center"
         align="center"
+        width="60"
       >
-        <el-color-picker v-model="car.color" size="small" />
-        <!--        <input ba="car.color" />-->
-        <!--        <el-tag color="colorpicker.vaule"> </el-tag>-->
+        <template #default="scope">
+          <el-color-picker v-model="scope.row.color" />
+        </template>
       </el-table-column>
 
       <el-table-column
@@ -253,6 +250,7 @@
         label="座位数"
         header-align="center"
         align="center"
+        width="70"
       />
       <el-table-column
         prop="displacementCode"
@@ -269,6 +267,7 @@
         label="结构"
         header-align="center"
         align="center"
+        width="70"
       >
         <template #default="scope">
           {{ bodyStylesDic[scope.row.bodyStyleCode] }}
@@ -279,26 +278,35 @@
         label="变速箱"
         header-align="center"
         align="center"
+        width="70"
       >
         <template #default="scope">
           {{ transmissionsDic[scope.row.transCode] }}
         </template>
       </el-table-column>
       <el-table-column
-        prop="checkList"
+        prop="features"
         label="选配件"
         header-align="center"
         align="center"
+        width="120"
       >
-        <span v-for="(x, xIdx) in car.checkList" :key="xIdx">
-          {{ x.substring(4) }}<br
-        /></span>
+        <template #default="scope">
+          <el-tag
+            v-for="feature in scope.row.features"
+            :key="feature"
+            effect="primary"
+          >
+            {{ feature }}<br
+          /></el-tag>
+        </template>
       </el-table-column>
       <el-table-column
         prop="serialCode"
         label="车系"
         header-align="center"
         align="center"
+        width="60"
       >
         <template #default="scope">
           {{ serialsDic[scope.row.serialCode] }}
@@ -309,6 +317,7 @@
         label="产地"
         header-align="center"
         align="center"
+        width="60"
       >
         <template #default="scope">
           {{ originPlacesDic[scope.row.originPlaceCode] }}
@@ -319,6 +328,7 @@
         label="价格"
         header-align="center"
         align="center"
+        width="60"
       />
       <el-table-column
         prop="fuelTypeCode"
@@ -363,8 +373,6 @@
       </el-table-column>
     </el-table>
   </el-row>
-  {{ car.checkList }}
-  {{ checkList }}
 </template>
 
 <!-- setup语法糖 -->
@@ -377,7 +385,6 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import axios from "axios";
 
 import { rules } from "@typescript-eslint/eslint-plugin";
-const checkList = ref([]);
 const colorpicker = ref("#409EFF");
 const global: any = inject("global");
 
@@ -412,40 +419,37 @@ const API_URLs = {
   serial: {
     list: `http://wsmooc.jxufe.edu.cn/data/json/carBrand/serial/list?token=${token}`,
   },
+  feature: {
+    list: `http://wsmooc.jxufe.edu.cn/data/json/carBrand/features/list?token=${token}`,
+  },
 };
 
-let catDialogShow = ref(false);
+let carDialogShow = ref(false);
 
 let newRecord = ref(false);
 
 //数据存储
-let ini_cat = {
+let ini_car = {
   id: 0,
-
   code: "",
-
   caption: "",
-
   bodyStyleCode: "",
   transCode: " ",
   displacementCode: " ",
   fuelTypeCode: " ",
   originPlaceCode: " ",
   serialCode: " ",
-  checkList: [],
+  features: [],
   color: "409EFF",
-
   birth: "2023-01-01",
-
   sit: 4,
   price: 14,
-
   gender: true,
 };
 
-let car = ref(ini_cat);
+let car = ref(ini_car);
 
-let cats = ref([]);
+let cars = ref([]);
 //+s
 let bodyStyles = ref([]);
 let transmissions = ref([]);
@@ -453,7 +457,7 @@ let displacements = ref([]);
 let fuelTypes = ref([]);
 let originPlaces = ref([]);
 let serials = ref([]);
-
+let features = ref([]);
 //bodyStyles
 let bodyStylesDic = computed(() => {
   let data = {};
@@ -534,6 +538,20 @@ let fuelTypesDic = computed(() => {
 
   return data;
 });
+//features
+let featuresDic = computed(() => {
+  let data = {};
+  for (let key in features.value) {
+    let item = features.value[key];
+
+    let obj = {};
+
+    obj[item["code"]] = item["caption"];
+
+    Object.assign(data, obj);
+  }
+  return data;
+});
 //originPlaces
 let originPlacesDic = computed(() => {
   let data = {};
@@ -558,18 +576,19 @@ onMounted(async () => {
   await fetchfuelTypeData();
   await fetchoriginPlaceData();
   await fetchserialData();
-  await fetchCatData();
+  await fetchFeaturesData();
+  await fetchCarData();
 });
 
-const showNewCatDialog = () => {
-  car = ref(JSON.parse(JSON.stringify(ini_cat)));
+const showNewCarDialog = () => {
+  car = ref(JSON.parse(JSON.stringify(ini_car)));
 
-  catDialogShow.value = true;
+  carDialogShow.value = true;
 
   newRecord.value = true;
 };
 
-const fetchCatData = () => {
+const fetchCarData = () => {
   axios({
     method: "POST",
 
@@ -578,17 +597,17 @@ const fetchCatData = () => {
     data: {},
   })
     .then((res) => {
-      cats.value = [];
+      cars.value = [];
 
       if (res.data.code == 0) {
-        cats.value = res.data.data;
+        cars.value = res.data.data;
       }
 
       showMessage(res.data);
     })
 
     .catch((err) => {
-      cats.value = [];
+      cars.value = [];
 
       reportError(err);
     });
@@ -694,6 +713,31 @@ const fetchfuelTypeData = () => {
       reportError(err);
     });
 };
+//features
+const fetchFeaturesData = () => {
+  axios({
+    method: "POST",
+
+    url: API_URLs.feature.list,
+
+    data: {},
+  })
+    .then((res) => {
+      features.value = [];
+
+      if (res.data.code == 0) {
+        features.value = res.data.data;
+      }
+
+      showMessage(res.data);
+    })
+
+    .catch((err) => {
+      features.value = [];
+
+      reportError(err);
+    });
+};
 //originPlace
 const fetchoriginPlaceData = () => {
   axios({
@@ -755,16 +799,16 @@ const doAction = (actionURL: string) => {
   })
     .then((res) => {
       if (res.data.code == 0) {
-        fetchCatData();
+        fetchCarData();
 
-        catDialogShow.value = false;
+        carDialogShow.value = false;
       }
 
       showMessage(res.data);
     })
 
     .catch((err) => {
-      cats.value = [];
+      cars.value = [];
 
       reportError(err);
     });
@@ -795,7 +839,7 @@ const doSave = (actionURL: string) => {
 const loadData2Form = (row: any) => {
   car.value = JSON.parse(JSON.stringify(row));
 
-  catDialogShow.value = true;
+  carDialogShow.value = true;
 
   newRecord.value = false;
 };
@@ -873,8 +917,7 @@ const checkRules = {
   serialCode: [{ required: true, message: "不得为空", trigger: "change" }],
   birth: [{ required: true, message: "不得为空" }],
   color: [{ required: true, message: "不得为空" }],
-  checkList: [{ required: true, message: "不得为空" }],
-
+  features: [{ required: true, message: "不得为空" }],
   sit: [{ required: true, message: "不得为空" }],
   price: [{ required: true, message: "不得为空" }],
 };
@@ -891,5 +934,11 @@ form {
 
 table {
   margin: 20px;
+}
+.el-table :nth-child(n) {
+  --el-table-tr-bg-color: var(--el-color-warning-light-9);
+}
+.el-table :nth-child(2n) {
+  --el-table-tr-bg-color: var(--el-color-success-light-9);
 }
 </style>

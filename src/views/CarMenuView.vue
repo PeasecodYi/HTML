@@ -1,11 +1,16 @@
 <template>
   <el-container class="full-height">
+    <div class="block text-center">
+      <el-carousel height="150px">
+        <el-carousel-item v-for="item in 4" :key="item"></el-carousel-item>
+      </el-carousel>
+    </div>
     <el-header>
       <el-menu
         mode="horizontal"
         :default-active="$route.path"
         router
-        background-color="#324157"
+        background-color="#00000F"
         text-color="#ffff"
         active-text-color="#ffd04b"
       >
@@ -55,5 +60,21 @@ export default {
   height: 100%;
 }
 :deep(.el-menu) {
+}
+.el-carousel__item:nth-child(6) {
+  background-image: url("../assets/780.jpg");
+  background-size: 100% 150px;
+}
+.el-carousel__item:nth-child(5) {
+  background-image: url("../assets/350.jpg");
+  background-size: 100% 150px;
+}
+.el-carousel__item:nth-child(3) {
+  background-image: url("../assets/b104ec26_E906293_6fad5394.jpg");
+  background-size: 100% 150px;
+}
+.el-carousel__item:nth-child(4) {
+  background-image: url("../assets/true.jpg");
+  background-size: 100% 150px;
 }
 </style>
